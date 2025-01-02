@@ -1,34 +1,29 @@
 import React, { useState } from 'react';
 import { ItineraryForm } from './components/ItineraryForm';
 import { ItineraryDisplay } from './components/ItineraryDisplay';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { generateItinerary } from './services/openai';
 import { type Itinerary } from './types/itinerary';
 import { Compass } from 'lucide-react';
 
-export function App() {
+function AppContent() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentDestination, setCurrentDestination] = useState('');
   const [currentDays, setCurrentDays] = useState(0);
 
-  const handleSubmit = async (destination: string, days: number) => {
+  const handleSubmit = async (destination: string, days: number, language: string) => {
     try {
       setIsLoading(true);
       setCurrentDestination(destination);
       setCurrentDays(days);
-      const newItinerary = await generateItinerary(destination, days);
+      const newItinerary = await generateItinerary(destination, days, language as any);
       setItinerary(newItinerary);
     } catch (error) {
       console.error('Failed to generate itinerary:', error);
       alert('Failed to generate itinerary. Please try again.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleRegenerate = () => {
-    if (currentDestination && currentDays) {
-      handleSubmit(currentDestination, currentDays);
     }
   };
 
@@ -39,7 +34,9 @@ export function App() {
           <div className="text-center space-y-3 md:space-y-4">
             <div className="flex items-center justify-center gap-3">
               <Compass className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Travel Itinerary Planner</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                Travel Itinerary Generator
+              </h1>
             </div>
             <p className="text-sm md:text-base text-gray-600 max-w-xl">
               Enter your destination and trip length, and we'll generate
@@ -50,12 +47,21 @@ export function App() {
           <ItineraryForm
             onSubmit={handleSubmit}
             isLoading={isLoading}
-            onRegenerate={handleRegenerate}
+            currentDestination={currentDestination}
+            currentDays={currentDays}
           />
 
           <ItineraryDisplay itinerary={itinerary} />
         </div>
       </div>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }

@@ -1,13 +1,25 @@
 import OpenAI from 'openai';
 import { type Itinerary } from '../types/itinerary';
+import { type Language } from '../contexts/LanguageContext';
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
   dangerouslyAllowBrowser: true
 });
 
-export async function generateItinerary(destination: string, days: number): Promise<Itinerary> {
-  const prompt = `Create a detailed ${days}-day travel itinerary for ${destination}. For each activity, include:
+const languagePrompts: Record<Language, string> = {
+  en: 'in English',
+  es: 'in Spanish (Español)',
+  fr: 'in French (Français)',
+  vi: 'in Vietnamese (Tiếng Việt)'
+};
+
+export async function generateItinerary(
+  destination: string,
+  days: number,
+  language: Language
+): Promise<Itinerary> {
+  const prompt = `Create a detailed ${days}-day travel itinerary for ${destination} ${languagePrompts[language]}. For each activity, include:
   - Estimated duration of time spent at each attraction
   - Travel time and distance between locations (in km and hours/minutes)
   
@@ -18,8 +30,8 @@ export async function generateItinerary(destination: string, days: number): Prom
       {
         "day": number,
         "activities": [
-          "Activity 1 (2 hours) - [Location Name]. From previous location: 3 km, 15 min by taxi",
-          "Activity 2 (1.5 hours) - [Location Name]. From previous location: 1.2 km, 8 min walking"
+          "Activity 1 (2 hours). From previous location: 3 km, 15 min by taxi",
+          "Activity 2 (1.5 hours). From previous location: 1.2 km, 8 min walking"
         ],
         "meals": ["Breakfast", "Lunch", "Dinner"],
         "notes": "optional additional information"

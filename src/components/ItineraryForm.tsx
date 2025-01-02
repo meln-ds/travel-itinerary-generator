@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { Plane, Calendar } from 'lucide-react';
-import { destinations } from '../data/destinations';
+import { Calendar, Globe } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { LanguageSelector } from './LanguageSelector';
+import { DestinationFields } from './DestinationFields';
 
 interface ItineraryFormProps {
-  onSubmit: (destination: string, days: number) => void;
+  onSubmit: (destination: string, days: number, language: string) => void;
   isLoading: boolean;
-  onRegenerate: () => void;
+  currentDestination: string;
+  currentDays: number;
 }
 
-export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFormProps) {
-  const [destination, setDestination] = useState('');
+export function ItineraryForm({ onSubmit, isLoading, currentDestination, currentDays }: ItineraryFormProps) {
+  const { language } = useLanguage();
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [days, setDays] = useState<string>('1');
   const [error, setError] = useState<string>('');
 
@@ -20,7 +25,18 @@ export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFo
       setError('Trip length cannot exceed 31 days');
       return;
     }
-    onSubmit(destination, daysNum);
+    if (daysNum < 1) {
+      setError('Trip length cannot be less than 1 day');
+      return;
+    }
+    const destination = `${city}, ${country}`;
+    onSubmit(destination, daysNum, language);
+  };
+
+  const handleRegenerate = () => {
+    if (currentDestination && currentDays) {
+      onSubmit(currentDestination, currentDays, language);
+    }
   };
 
   const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +47,6 @@ export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFo
     if (value && parseInt(value) > 31) {
       setError('Trip length cannot exceed 31 days');
     }
-    
     if (value && parseInt(value) < 1) {
       setError('Trip length cannot be less than 1 day');
     }
@@ -39,32 +54,12 @@ export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
-      <div className="space-y-2">
-        <label htmlFor="destination" className="block text-sm font-medium text-gray-700">
-          Destination
-        </label>
-        <div className="relative">
-          <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-          <select
-            id="destination"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            className="pl-10 w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            required
-          >
-            <option value="">Select a destination</option>
-            {destinations.map((region) => (
-              <optgroup key={region.region} label={region.region}>
-                {region.cities.map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-      </div>
+      <DestinationFields
+        city={city}
+        setCity={setCity}
+        country={country}
+        setCountry={setCountry}
+      />
 
       <div className="space-y-2">
         <label htmlFor="days" className="block text-sm font-medium text-gray-700">
@@ -88,6 +83,16 @@ export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFo
         )}
       </div>
 
+      <div className="space-y-2">
+        <label htmlFor="language" className="block text-sm font-medium text-gray-700">
+          Output Language
+        </label>
+        <div className="relative">
+          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <LanguageSelector />
+        </div>
+      </div>
+
       <div className="flex gap-3">
         <button
           type="submit"
@@ -96,14 +101,16 @@ export function ItineraryForm({ onSubmit, isLoading, onRegenerate }: ItineraryFo
         >
           {isLoading ? 'Generating...' : 'Generate Itinerary'}
         </button>
-        <button
-          type="button"
-          onClick={onRegenerate}
-          disabled={isLoading}
-          className="w-full rounded-lg bg-gray-600 px-4 py-3 text-white font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Regenerate
-        </button>
+        {currentDestination && currentDays > 0 && (
+          <button
+            type="button"
+            onClick={handleRegenerate}
+            disabled={isLoading}
+            className="w-full rounded-lg bg-gray-600 px-4 py-3 text-white font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Regenerate
+          </button>
+        )}
       </div>
     </form>
   );
