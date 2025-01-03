@@ -10,7 +10,9 @@ interface ItineraryDisplayProps {
 function DayCard({ plan }: { plan: DayPlan }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-6 space-y-4">
-      <h3 className="text-xl font-semibold text-gray-800">Day {plan.day}</h3>
+      <h3 className="text-xl font-semibold text-gray-800">
+        Day {plan.day} - {plan.title}
+      </h3>
       
       <div className="space-y-3">
         <div className="space-y-2">
@@ -64,6 +66,10 @@ export function ItineraryDisplay({ itinerary }: ItineraryDisplayProps) {
           </h2>
         </div>
         <ExportButton itinerary={itinerary} />
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+        <p className="text-gray-600 leading-relaxed">{itinerary.description}</p>
       </div>
 
       <div className="space-y-4 md:space-y-6">

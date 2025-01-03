@@ -3,9 +3,10 @@ import { Calendar, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 import { DestinationFields } from './DestinationFields';
+import { VibeSelector, type Vibe } from './VibeSelector';
 
 interface ItineraryFormProps {
-  onSubmit: (destination: string, days: number, language: string) => void;
+  onSubmit: (destination: string, days: number, language: string, vibes: Vibe[]) => void;
   isLoading: boolean;
   currentDestination: string;
   currentDays: number;
@@ -16,6 +17,7 @@ export function ItineraryForm({ onSubmit, isLoading, currentDestination, current
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [days, setDays] = useState<string>('1');
+  const [selectedVibes, setSelectedVibes] = useState<Vibe[]>([]);
   const [error, setError] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -30,12 +32,20 @@ export function ItineraryForm({ onSubmit, isLoading, currentDestination, current
       return;
     }
     const destination = `${city}, ${country}`;
-    onSubmit(destination, daysNum, language);
+    onSubmit(destination, daysNum, language, selectedVibes);
+  };
+
+  const handleVibeToggle = (vibe: Vibe) => {
+    setSelectedVibes(prev => 
+      prev.includes(vibe)
+        ? prev.filter(v => v !== vibe)
+        : [...prev, vibe]
+    );
   };
 
   const handleRegenerate = () => {
     if (currentDestination && currentDays) {
-      onSubmit(currentDestination, currentDays, language);
+      onSubmit(currentDestination, currentDays, language, selectedVibes);
     }
   };
 
@@ -81,6 +91,16 @@ export function ItineraryForm({ onSubmit, isLoading, currentDestination, current
         {error && (
           <p className="text-sm text-red-600">{error}</p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Your Vibe
+        </label>
+        <VibeSelector
+          selectedVibes={selectedVibes}
+          onVibeToggle={handleVibeToggle}
+        />
       </div>
 
       <div className="space-y-2">

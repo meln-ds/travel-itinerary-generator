@@ -4,6 +4,7 @@ import { ItineraryDisplay } from './components/ItineraryDisplay';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { generateItinerary } from './services/openai';
 import { type Itinerary } from './types/itinerary';
+import { type Vibe } from './components/VibeSelector';
 import { Compass } from 'lucide-react';
 
 function AppContent() {
@@ -12,12 +13,12 @@ function AppContent() {
   const [currentDestination, setCurrentDestination] = useState('');
   const [currentDays, setCurrentDays] = useState(0);
 
-  const handleSubmit = async (destination: string, days: number, language: string) => {
+  const handleSubmit = async (destination: string, days: number, language: string, vibes: Vibe[]) => {
     try {
       setIsLoading(true);
       setCurrentDestination(destination);
       setCurrentDays(days);
-      const newItinerary = await generateItinerary(destination, days, language as any);
+      const newItinerary = await generateItinerary(destination, days, language as any, vibes);
       setItinerary(newItinerary);
     } catch (error) {
       console.error('Failed to generate itinerary:', error);
@@ -39,8 +40,7 @@ function AppContent() {
               </h1>
             </div>
             <p className="text-sm md:text-base text-gray-600 max-w-xl">
-              Enter your destination and trip length, and we'll generate
-              a personalized travel itinerary for you.
+              Give me a destination, and we will whip up a fabulous trip for you!
             </p>
           </div>
 
