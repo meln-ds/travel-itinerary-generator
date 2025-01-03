@@ -34,7 +34,11 @@ function AppContent() {
         <div className="flex flex-col items-center space-y-6 md:space-y-8">
           <div className="text-center space-y-3 md:space-y-4">
             <div className="flex items-center justify-center gap-3">
-              <Compass className="h-8 w-8 md:h-10 md:w-10 text-blue-600" />
+              <img 
+                src="/icon.png" 
+                alt="Travel Itinerary Generator" 
+                className="h-8 w-8 md:h-10 md:w-10"
+              />
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                 Travel Itinerary Generator
               </h1>
